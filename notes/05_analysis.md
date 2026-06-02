@@ -93,10 +93,6 @@ n_cpu_moe=20 時 VRAM 完全沒有剩餘空間，導致 CUDA kernel 啟動失敗
 
 ## 5. `--threads` 對速度的影響
 
-### RX 580 Vulkan 時代
-
-最佳 threads=6~8，超過 8 後因 CPU 競爭反而下降。
-
 ### RTX 3060 CUDA 時代（真實 GPU）
 
 在 GPU 加速下，threads 對 decode 的影響顯著減小。
@@ -155,7 +151,6 @@ KV cache 公式（q4_0）：
 
 ### ❌ 容易 OOM 或 crash
 
-- RX 580 + n_cpu_moe=28：Vulkan OOM（已換卡）
 - MTP 版 + `--spec-draft-model [same_file]`（不需此參數）
 
 ## 9. 關於前期 CPU-only 的重大失誤

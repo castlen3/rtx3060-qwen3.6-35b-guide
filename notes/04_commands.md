@@ -5,40 +5,10 @@
 
 ## 測試命名規則
 
-- `r01`~`rNN`：RX 580 測試（參考用）
 - `n01`~`nNN`：RTX 3060 一般版模型
 - `m01`~`mNN`：RTX 3060 MTP 版模型
 - `fake_gpu` 標籤表示該階段因缺失 CUDA runtime 實為 CPU-only
 - `real_gpu` 標籤表示已正確使用 CUDA 加速
-
----
-
-## 階段 A：RX 580 參考測試（Vulkan 後端）
-
-### r01 - n_cpu_moe baseline（41, threads=10, ctx=4096, q4_0）
-
-```bash
-llama-server.exe -m "Qwen3.6-35B-A3B-Q4_K_M.gguf" -t 10 --port 8080 -ngl 99 --n-cpu-moe 41 --no-mmap --cache-type-k q4_0 --cache-type-v q4_0 -c 4096 -np 1
-```
-- 結果：decode 5.19 tok/s（baseline）
-
-### r02~r10 - n_cpu_moe sweep（39→28）
-
-```bash
-llama-server.exe -m "Qwen3.6-35B-A3B-Q4_K_M.gguf" -t 10 --port 8080 -ngl 99 --n-cpu-moe {value} --no-mmap --cache-type-k q4_0 --cache-type-v q4_0 -c 4096 -np 1
-```
-- 測試值：39, 37, 36, 35, 34, 33, 32, 30, 28
-- 結果：n_cpu_moe=36 → 6.03 tok/s（最佳），n_cpu_moe=28 → OOM
-
-### r11~r24 - threads sweep（n_cpu_moe=32 與 36）
-
-```bash
-llama-server.exe -m "Qwen3.6-35B-A3B-Q4_K_M.gguf" -t {threads} --port 8080 -ngl 99 --n-cpu-moe {32/36} --no-mmap --cache-type-k q4_0 --cache-type-v q4_0 -c 4096 -np 1
-```
-- 測試 threads：4, 6, 8, 10, 12, 14, 16, 20
-- 結果：threads=6 最佳，threads=8 次之
-
----
 
 ## 階段 B：RTX 3060 bin-only（缺失 CUDA runtime, CPU-only）
 

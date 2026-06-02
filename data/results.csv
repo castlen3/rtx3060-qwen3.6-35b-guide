@@ -1,14 +1,4 @@
 test_id,date,model_family,model_variant,model_file,quant,backend,threads,ngl,n_cpu_moe,ctx_size,kv_cache_type_k,kv_cache_type_v,mtp_enabled,spec_type,spec_draft_n_max,prompt_tokens,generated_tokens,prompt_tps,decode_tps,total_time_sec,ram_peak_mb,vram_peak_mb,status,error_message,notes
-# ===== 階段 A: RX 580 Vulkan（參考）=====
-r01,2026-06-01,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,Vulkan,10,99,41,4096,q4_0,q4_0,false,,,22,200,24.84,5.19,38.3,15262,6453,success,,baseline RX580
-r02,2026-06-01,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,Vulkan,10,99,39,4096,q4_0,q4_0,false,,,22,200,unknown,5.15,unknown,unknown,unknown,success,,
-r03,2026-06-01,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,Vulkan,10,99,36,4096,q4_0,q4_0,false,,,22,200,19.56,6.03,32.8,17119,4543,success,,RX580 最佳 n_cpu_moe
-r04,2026-06-01,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,Vulkan,10,99,32,4096,q4_0,q4_0,false,,,22,200,19.91,5.95,34.5,15262,6453,success,,
-r05,2026-06-01,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,Vulkan,10,99,30,4096,q4_0,q4_0,false,,,22,200,unknown,5.30,unknown,unknown,unknown,success,,warning observed
-r06,2026-06-01,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,Vulkan,10,99,28,4096,q4_0,q4_0,false,,,22,200,0,0,0,0,0,failed,Vulkan OOM,Vulkan OOM on RX580
-r07,2026-06-02,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,Vulkan,6,99,36,4096,q4_0,q4_0,false,,,22,200,19.56,6.03,32.8,17119,4543,success,,RX580 threads sweep best
-r08,2026-06-02,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,Vulkan,8,99,36,4096,q4_0,q4_0,false,,,22,200,20.45,5.99,33.4,17119,4543,success,,
-r09,2026-06-02,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,Vulkan,4,99,36,4096,q4_0,q4_0,false,,,22,200,17.50,5.79,34.6,17119,4543,success,,
 # ===== 階段 B: RTX 3060 bin-only（CPU-only，缺失CUDA runtime）=====
 n01,2026-06-02,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,CUDA(CPU-fallback),6,99,28,32768,q8_0,q8_0,false,,,16,200,27.97,10.35,19.3,15262,932,success,fake_gpu,"実為CPU-only，因缺失CUDA runtime DLL"
 n02,2026-06-02,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,CUDA(CPU-fallback),6,99,24,32768,q8_0,q8_0,false,,,16,200,27.92,10.27,19.5,unknown,932,success,fake_gpu,
