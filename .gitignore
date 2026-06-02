@@ -1,0 +1,17 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Python
+__pycache__/
+*.pyc
+
+# Local benchmark leftovers
+*.log
+*.tmp
+tmp/
+scratch/
+
+# Optional local notes
+work/

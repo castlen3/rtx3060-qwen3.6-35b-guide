@@ -1,0 +1,68 @@
+test_id,date,model_family,model_variant,model_file,quant,backend,threads,ngl,n_cpu_moe,ctx_size,kv_cache_type_k,kv_cache_type_v,mtp_enabled,spec_type,spec_draft_n_max,prompt_tokens,generated_tokens,prompt_tps,decode_tps,total_time_sec,ram_peak_mb,vram_peak_mb,status,error_message,notes
+# ===== 階段 A: RX 580 Vulkan（參考）=====
+r01,2026-06-01,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,Vulkan,10,99,41,4096,q4_0,q4_0,false,,,22,200,24.84,5.19,38.3,15262,6453,success,,baseline RX580
+r02,2026-06-01,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,Vulkan,10,99,39,4096,q4_0,q4_0,false,,,22,200,unknown,5.15,unknown,unknown,unknown,success,,
+r03,2026-06-01,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,Vulkan,10,99,36,4096,q4_0,q4_0,false,,,22,200,19.56,6.03,32.8,17119,4543,success,,RX580 最佳 n_cpu_moe
+r04,2026-06-01,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,Vulkan,10,99,32,4096,q4_0,q4_0,false,,,22,200,19.91,5.95,34.5,15262,6453,success,,
+r05,2026-06-01,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,Vulkan,10,99,30,4096,q4_0,q4_0,false,,,22,200,unknown,5.30,unknown,unknown,unknown,success,,warning observed
+r06,2026-06-01,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,Vulkan,10,99,28,4096,q4_0,q4_0,false,,,22,200,0,0,0,0,0,failed,Vulkan OOM,Vulkan OOM on RX580
+r07,2026-06-02,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,Vulkan,6,99,36,4096,q4_0,q4_0,false,,,22,200,19.56,6.03,32.8,17119,4543,success,,RX580 threads sweep best
+r08,2026-06-02,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,Vulkan,8,99,36,4096,q4_0,q4_0,false,,,22,200,20.45,5.99,33.4,17119,4543,success,,
+r09,2026-06-02,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,Vulkan,4,99,36,4096,q4_0,q4_0,false,,,22,200,17.50,5.79,34.6,17119,4543,success,,
+# ===== 階段 B: RTX 3060 bin-only（CPU-only，缺失CUDA runtime）=====
+n01,2026-06-02,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,CUDA(CPU-fallback),6,99,28,32768,q8_0,q8_0,false,,,16,200,27.97,10.35,19.3,15262,932,success,fake_gpu,"実為CPU-only，因缺失CUDA runtime DLL"
+n02,2026-06-02,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,CUDA(CPU-fallback),6,99,24,32768,q8_0,q8_0,false,,,16,200,27.92,10.27,19.5,unknown,932,success,fake_gpu,
+n03,2026-06-02,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,CUDA(CPU-fallback),6,99,20,32768,q8_0,q8_0,false,,,16,200,28.13,10.68,18.7,unknown,932,success,fake_gpu,此階段最佳(CPU-only)
+n04,2026-06-02,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,CUDA(CPU-fallback),6,99,16,32768,q8_0,q8_0,false,,,16,200,28.12,10.66,18.8,unknown,932,success,fake_gpu,
+n05,2026-06-02,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,CUDA(CPU-fallback),6,99,12,32768,q8_0,q8_0,false,,,16,200,28.41,10.67,18.8,unknown,932,success,fake_gpu,
+n06,2026-06-02,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,CUDA(CPU-fallback),6,99,8,32768,q8_0,q8_0,false,,,16,200,23.89,10.17,19.7,unknown,932,success,fake_gpu,
+n07,2026-06-02,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,CUDA(CPU-fallback),6,99,4,32768,q8_0,q8_0,false,,,16,200,28.35,10.49,19.1,unknown,932,success,fake_gpu,
+n08,2026-06-02,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,CUDA(CPU-fallback),6,99,0,32768,q8_0,q8_0,false,,,16,200,28.36,10.45,19.1,unknown,932,success,fake_gpu,
+# ===== 階段 B2: MTP CPU-only sweep（缺失CUDA runtime）=====
+m01,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA(CPU-fallback),6,99,20,32768,q8_0,q8_0,true,draft-mtp,1,16,200,unknown,8.76,unknown,unknown,932,success,fake_gpu,
+m02,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA(CPU-fallback),6,99,20,32768,q8_0,q8_0,true,draft-mtp,2,16,200,unknown,9.60,unknown,unknown,932,success,fake_gpu,
+m03,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA(CPU-fallback),6,99,20,32768,q8_0,q8_0,true,draft-mtp,3,16,200,unknown,10.99,unknown,unknown,932,success,fake_gpu,
+m04,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA(CPU-fallback),6,99,20,32768,q8_0,q8_0,true,draft-mtp,4,16,200,unknown,11.15,unknown,unknown,932,success,fake_gpu,
+m05,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA(CPU-fallback),6,99,20,32768,q8_0,q8_0,true,draft-mtp,5,16,200,unknown,11.94,unknown,unknown,932,success,fake_gpu,此階段最佳(CPU-only)遞減
+m06,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA(CPU-fallback),6,99,20,32768,q8_0,q8_0,true,draft-mtp,7,16,200,unknown,11.08,unknown,unknown,932,success,fake_gpu,
+# ===== 階段 B3: MTP draft × threads sweep long text（CPU-only）=====
+m07,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA(CPU-fallback),4,99,20,32768,q8_0,q8_0,true,draft-mtp,2,307,200,22.59,7.99,25.0,unknown,932,success,fake_gpu,
+m08,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA(CPU-fallback),6,99,20,32768,q8_0,q8_0,true,draft-mtp,2,307,200,30.72,9.56,20.9,unknown,932,success,fake_gpu,
+m09,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA(CPU-fallback),8,99,20,32768,q8_0,q8_0,true,draft-mtp,2,307,200,37.06,10.88,18.4,unknown,932,success,fake_gpu,
+m10,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA(CPU-fallback),10,99,20,32768,q8_0,q8_0,true,draft-mtp,2,307,200,44.56,10.92,18.3,unknown,932,success,fake_gpu,
+m11,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA(CPU-fallback),12,99,20,32768,q8_0,q8_0,true,draft-mtp,2,307,200,36.50,9.96,20.1,unknown,932,success,fake_gpu,
+m12,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA(CPU-fallback),8,99,20,32768,q8_0,q8_0,true,draft-mtp,4,307,200,40.17,13.87,14.4,unknown,932,success,fake_gpu,
+m13,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA(CPU-fallback),10,99,20,32768,q8_0,q8_0,true,draft-mtp,4,307,200,43.48,14.28,14.0,unknown,932,success,fake_gpu,
+m14,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA(CPU-fallback),8,99,20,32768,q8_0,q8_0,true,draft-mtp,5,307,200,40.28,14.99,13.3,unknown,932,success,fake_gpu,此階段長文本最佳(CPU-only)
+m15,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA(CPU-fallback),10,99,20,32768,q8_0,q8_0,true,draft-mtp,5,307,200,43.80,14.86,13.5,unknown,932,success,fake_gpu,
+# ===== 階段 C: RTX 3060 cudart（真實 GPU 加速）=====
+n15,2026-06-02,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,CUDA,8,99,20,32768,q8_0,q8_0,false,,,16,200,36.02,27.35,7.3,15262,11633,success,real_gpu,真GPU加速！
+n16,2026-06-02,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,CUDA,8,99,16,32768,q8_0,q8_0,false,,,16,200,23.39,14.74,13.6,unknown,unknown,success,real_gpu,
+n17,2026-06-02,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,CUDA,8,99,12,32768,q8_0,q8_0,false,,,16,200,23.60,12.48,16.0,unknown,unknown,success,real_gpu,
+n18,2026-06-02,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,CUDA,8,99,8,32768,q8_0,q8_0,false,,,16,200,23.11,10.50,19.0,unknown,unknown,success,real_gpu,
+n19,2026-06-02,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,CUDA,8,99,4,32768,q8_0,q8_0,false,,,16,200,17.02,9.67,20.7,unknown,unknown,success,real_gpu,
+n20,2026-06-02,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,CUDA,8,99,0,32768,q8_0,q8_0,false,,,16,200,15.79,8.59,23.3,unknown,unknown,success,real_gpu,VRAM已滿效能下降
+n21,2026-06-02,qwen35b-a3b,normal,Qwen3.6-35B-A3B-Q4_K_M.gguf,Q4_K_M,CUDA,8,99,20,32768,q8_0,q8_0,false,,,307,200,260.20,27.73,7.2,unknown,11633,success,real_gpu,長文本真實GPU最佳
+# ===== 階段 C2: MTP 真實 GPU 測試 =====
+# Smoke tests
+m22_smoke1,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CPU,4,0,default,512,q4_0,q4_0,false,,,0,0,0,0,0,22000,469,success,,"MTP GGUF CPU-only no MTP, model loaded OK"
+m23_smoke2,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CPU,4,0,default,512,q4_0,q4_0,true,draft-mtp,1,0,0,0,0,0,22204,469,success,,"MTP GGUF CPU-only draft=1, MTP detected, model loaded OK"
+m24_smoke3,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA,8,12,41,4096,q4_0,q4_0,true,draft-mtp,2,0,0,0,0,0,21751,3263,success,,"MTP GGUF GPU ngl=12 draft=2, model loaded OK"
+# ngl sweep
+m25,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA,8,12,41,4096,q4_0,q4_0,true,draft-mtp,2,307,256,126.11,8.21,31.2,22030,3417,success,real_gpu,MTP真實GPU ngl sweep
+m26,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA,8,16,41,4096,q4_0,q4_0,true,draft-mtp,2,307,256,132.63,8.78,29.2,21855,3225,success,real_gpu,
+m27,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA,8,20,41,4096,q4_0,q4_0,true,draft-mtp,2,307,256,140.16,9.83,26.0,21688,3767,success,real_gpu,
+m28,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA,8,24,41,4096,q4_0,q4_0,true,draft-mtp,2,307,256,145.39,11.45,22.4,21512,3571,success,real_gpu,
+m29,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA,8,28,41,4096,q4_0,q4_0,true,draft-mtp,2,307,256,146.29,11.85,21.6,21346,4110,success,real_gpu,
+m30,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA,8,32,41,4096,q4_0,q4_0,true,draft-mtp,2,307,256,143.07,14.00,18.3,21167,3918,success,real_gpu,
+m31,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA,8,36,41,4096,q4_0,q4_0,true,draft-mtp,2,307,256,153.40,16.85,15.2,unknown,3910,success,real_gpu,
+m32,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA,8,40,41,4096,q4_0,q4_0,true,draft-mtp,2,307,256,151.63,18.29,14.0,unknown,4104,success,real_gpu,ngl=40全部GPU
+# draft sweep at ngl=40
+m33,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA,8,40,41,4096,q4_0,q4_0,true,draft-mtp,1,307,256,155.95,19.13,13.4,unknown,4052,success,real_gpu,draft=1比draft=2更快
+m34,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA,8,40,41,4096,q4_0,q4_0,true,draft-mtp,3,307,256,151.69,20.80,12.3,unknown,unknown,success,real_gpu,最佳draft
+# n_cpu_moe sweep at ngl=40 draft=3
+m35,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA,8,40,36,4096,q4_0,q4_0,true,draft-mtp,3,307,256,176.22,24.95,10.3,18467,6746,success,real_gpu,大幅提升
+m36,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA,8,40,32,4096,q4_0,q4_0,true,draft-mtp,3,307,256,174.23,24.55,10.4,16583,8632,success,real_gpu,
+m37,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA,8,40,28,4096,q4_0,q4_0,true,draft-mtp,3,307,256,186.93,23.57,10.9,14728,10485,success,real_gpu,
+m38,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA,8,40,24,4096,q4_0,q4_0,true,draft-mtp,3,307,256,175.01,25.99,9.8,13184,11997,success,real_gpu,MTP最佳VRAM緊繃
+m39,2026-06-02,qwen35b-a3b,mtp,Qwen3.6-35B-A3B-UD-Q4_K_M.gguf,Q4_K_M,CUDA,8,40,20,4096,q4_0,q4_0,true,draft-mtp,3,307,200,64.86,16.26,12.3,13174,12007,unstable,real_gpu,VRAM滿載thrashing
