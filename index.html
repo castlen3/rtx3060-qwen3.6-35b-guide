@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RTX 3060 12GB 跑 Qwen3.6-35B-A3B 實戰指南</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #c9d1d9;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --orange: #d2991d;
+    --red: #f85149;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 2rem 1rem;
+  }
+  .container { max-width: 800px; margin: 0 auto; }
+  h1 {
+    font-size: 1.8rem;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+    color: #f0f6fc;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+  h2 {
+    font-size: 1.25rem;
+    color: #f0f6fc;
+    margin: 2rem 0 0.75rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--border);
+  }
+  h3 {
+    font-size: 1.05rem;
+    color: #e6edf3;
+    margin: 1.25rem 0 0.5rem;
+  }
+  p { margin-bottom: 0.75rem; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .hero {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem 1.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .hero .big-num {
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--green);
+    line-height: 1;
+  }
+  .hero .unit { font-size: 1rem; color: var(--muted); font-weight: 400; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.75rem 0 1rem;
+    font-size: 0.92rem;
+  }
+  th, td {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  th { color: var(--muted); font-weight: 500; font-size: 0.82rem; text-transform: uppercase; }
+  td:last-child, th:last-child { text-align: right; }
+  tr:last-child td { border-bottom: none; }
+
+  .tag {
+    display: inline-block;
+    padding: 0.15rem 0.55rem;
+    border-radius: 4px;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+  .tag-win  { background: rgba(63,185,80,0.15); color: var(--green); }
+  .tag-lose { background: rgba(248,81,73,0.12); color: var(--red); }
+  .tag-warn { background: rgba(210,153,29,0.15); color: var(--orange); }
+
+  pre {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin: 0.5rem 0 1rem;
+  }
+  code { font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace; font-size: 0.88em; }
+
+  .verdict {
+    background: rgba(63,185,80,0.08);
+    border: 1px solid rgba(63,185,80,0.25);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin: 1rem 0;
+  }
+  .verdict h3 { color: var(--green); margin-top: 0; }
+
+  .footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-top: 2.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 600px) {
+    body { padding: 1rem 0.5rem; }
+    h1 { font-size: 1.4rem; }
+    .hero .big-num { font-size: 2.2rem; }
+    pre { font-size: 0.78rem; padding: 0.75rem; }
+    table { font-size: 0.82rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>RTX 3060 12GB 跑 Qwen3.6-35B-A3B</h1>
+<p class="subtitle">一張 12GB 老卡，真的能順跑 35B MoE 模型嗎？答案是：可以，而且跑得不錯。</p>
+
+<div class="hero">
+  <div class="big-num">27.73 <span class="unit">tok/s</span></div>
+  <p style="margin-top:0.25rem; color:var(--muted);">RTX 3060 12GB · Qwen3.6-35B-A3B · Q4_K_M · 32K context</p>
+</div>
+
+<!-- ====== WHY ====== -->
+<h2>為什麼要測這個</h2>
+
+<p>Qwen3.6-35B-A3B 是我目前最喜歡的個人本地模型。知識面夠廣、能力夠強，日常問答、技術協作、甚至配 agent 用都很能打。</p>
+
+<p>但問題是：35B MoE 就算量化後，大部分人直覺都覺得<strong>至少要 24GB VRAM</strong> 才跑得起來。門檻一下就被拉高。</p>
+
+<div class="card">
+  <p style="margin:0;">這份測試想回答的只有一句話：<strong>普通家用 RTX 3060 12GB 到底能不能跑？</strong></p>
+</div>
+
+<!-- ====== RESULT ====== -->
+<h2>測試結果一句話</h2>
+
+<table>
+  <thead>
+    <tr><th>模型版本</th><th>最佳 decode</th><th>推薦設定</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>一般版 <span class="tag tag-win">首選</span></td>
+      <td><strong>27.73 tok/s</strong></td>
+      <td>ngl=99, n_cpu_moe=20, t=8, ctx=32768, q8_0</td>
+    </tr>
+    <tr>
+      <td>MTP 版</td>
+      <td>25.99 tok/s</td>
+      <td>ngl=40, n_cpu_moe=24, draft=3, ctx=4096, q4_0</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ====== MTP ====== -->
+<h2>MTP 為什麼沒贏</h2>
+
+<p>MTP（Multi-Token Prediction）理論上能透過 speculative decoding 加速，但在 12GB VRAM 的限制下反而<strong>得不償失</strong>。</p>
+
+<div class="card">
+  <h3 style="margin-top:0;">MTP 的隱形成本</h3>
+  <p style="margin-bottom:0.4rem;">MTP 模型比一般版大了 <strong>~2.9 GB</strong>（draft head 權重），這些多出來的 VRAM 開銷：</p>
+  <ul style="padding-left:1.25rem; margin:0;">
+    <li>排擠了能放進 GPU 的 experts</li>
+    <li>n_cpu_moe 只能放到 24（一般版可到 20）</li>
+    <li>VRAM 幾乎吃滿 12GB，n_cpu_moe=20 時直接 thrashing 掉到 16 tok/s</li>
+  </ul>
+</div>
+
+<table>
+  <thead>
+    <tr><th>指標</th><th>一般版 🏆</th><th>MTP 版</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>decode 速度</td><td>27.73 tok/s</td><td>25.99 tok/s</td></tr>
+    <tr><td>VRAM 用量</td><td>~11.6 GB（有餘裕）</td><td>~12.0 GB（緊繃）</td></tr>
+    <tr><td>模型大小</td><td>19.7 GB</td><td>22.6 GB</td></tr>
+    <tr><td>載入時間</td><td>~10 秒</td><td>~20-30 秒</td></tr>
+    <tr><td>穩定性</td><td><span class="tag tag-win">高</span></td><td><span class="tag tag-warn">中等</span></td></tr>
+  </tbody>
+</table>
+
+<p>在 12GB VRAM 這個容量邊界上，MTP 的 overhead 吃掉的速度比 speculative decoding 省下來的還多。結論：<strong>一般版就是首選。</strong></p>
+
+<!-- ====== RECOMMENDED ====== -->
+<h2>推薦參數：直接貼上就能跑</h2>
+
+<pre><code>llama-server.exe ^
+  -m "Qwen3.6-35B-A3B-Q4_K_M.gguf" ^
+  -t 8 ^
+  --port 8080 ^
+  -ngl 99 ^
+  --n-cpu-moe 20 ^
+  --no-mmap ^
+  --cache-type-k q8_0 ^
+  --cache-type-v q8_0 ^
+  -c 32768 ^
+  -np 1 ^
+  --reasoning off</code></pre>
+
+<div class="verdict">
+  <h3>✏️ 筆者更新（2026-06-03）</h3>
+  <p style="margin:0;">同樣參數，KV cache 維持 <code>q8_0</code>，context 拉到 <strong>64K</strong> 實測一樣很舒適。VRAM 多吃了約 200-300 MB，速度幾乎沒掉，日常使用完全沒問題。</p>
+</div>
+
+<!-- ====== CHECK ====== -->
+<h2>開始前必做的兩個檢查</h2>
+
+<div class="card">
+  <h3 style="margin-top:0;">檢查 1：真的抓到 GPU 了嗎？</h3>
+  <pre style="margin:0.5rem 0 0;"><code>llama-server.exe --list-devices
+
+# 你應該看到：
+#   CUDA0: NVIDIA GeForce RTX 3060 (12287 MiB, 11255 MiB free)
+
+# 如果空的 → 你用的是 bin-only 版，不是真的 GPU 加速
+# 解法：改下載 cudart-llama-bin-win-cuda-XX.x-x64.zip</code></pre>
+</div>
+
+<div class="card">
+  <h3 style="margin-top:0;">檢查 2：VRAM 有吃上去嗎？</h3>
+  <pre style="margin:0.5rem 0 0;"><code>nvidia-smi --query-gpu=memory.used --format=csv,noheader
+
+# CPU-only：~932 MiB（只有桌面程式）
+# 真 GPU：~11600 MiB（模型成功載入）</code></pre>
+</div>
+
+<!-- ====== PITFALLS ====== -->
+<h2>踩過的坑</h2>
+
+<table>
+  <thead><tr><th>坑</th><th>現象</th><th>解法</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="tag tag-lose">bin-only 詐欺</span></td>
+      <td>--list-devices 空的，VRAM 沒變，速度只有 10 tok/s</td>
+      <td>改用 <code>cudart-llama-bin-win-cuda</code></td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-warn">MTP + spec-draft-model</span></td>
+      <td>invalid vector subscript，載入 crash</td>
+      <td>self-MTP 只需 <code>--spec-type draft-mtp</code></td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-lose">VRAM 滿載 thrashing</span></td>
+      <td>MTP 版 n_cpu_moe=20，decode 從 26 掉到 16 tok/s</td>
+      <td>n_cpu_moe 卡在 24，不要硬擠</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ====== LINKS ====== -->
+<h2>完整資料</h2>
+
+<p>
+  📖 <a href="https://github.com/castlen3/rtx3060-qwen3.6-35b-guide">GitHub Repo</a> &nbsp;·&nbsp;
+  📊 <a href="https://github.com/castlen3/rtx3060-qwen3.6-35b-guide/blob/main/data/results.csv">完整 CSV 數據</a> &nbsp;·&nbsp;
+  🤖 <a href="https://github.com/castlen3/rtx3060-qwen3.6-35b-guide/blob/main/ASK_AGENT.md">丟給 Agent 的提問模板</a>
+</p>
+
+<div class="footer">
+  <p>MIT License · 恆宇醫師 · 2026</p>
+</div>
+
+</div>
+</body>
+</html>
