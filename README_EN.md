@@ -1,6 +1,8 @@
-# RTX 3060 12GB Running Qwen3.6-35B-A3B: 27 tok/s on a Budget GPU
+# RTX 3060 12GB Running Qwen3.6-35B-A3B: 27 tok/s on a Budget GPU + X99 Platform
 
 > [中文](README.md) | **English**
+>
+> 📖 [Web Version](https://castlen3.github.io/rtx3060-qwen3.6-35b-guide/) — clean visual summary, 5-minute read
 
 `Qwen3.6-35B-A3B` is one of my favorite local models. It's knowledgeable, capable, and works great for everything — daily chat, technical collaboration, data work, even as an agent backend.
 
@@ -10,20 +12,33 @@ This repo answers one question: **Can a humble RTX 3060 12GB actually run it?**
 
 The answer is **yes** — and not just barely. It's genuinely usable.
 
-📖 **[Web Version](https://castlen3.github.io/rtx3060-qwen3.6-35b-guide/)** — clean visual summary, 5-minute read
+I tested `Qwen3.6-35B-A3B` on an `RTX 3060 12GB` paired with an `X99` platform and consistently hit around `27 tok/s`. This isn't "勉强能跑" — it's a speed that's comfortable for daily use.
+
+This repo documents the full testing process, parameter sweeps, pitfalls, and conclusions for running `Qwen3.6-35B-A3B` and `Qwen3.6-35B-A3B-UD (MTP)` on `RTX 3060 12GB`.
+
+The goal isn't just to post a number — it's to let others:
+
+- Quickly know whether `12GB VRAM` can handle this 35B MoE model
+- Copy my verified `llama.cpp` parameters directly
+- Avoid the `CPU-only fake GPU` pitfall I fell into early on
+- Hand the repo to an agent and immediately ask "how do I reproduce this" and "what's the difference between these params"
+
+> ⚠️ **TL;DR: This is "12GB VRAM + enough system RAM" pushed to the limit — not "just 12GB VRAM and you're good to go."**
 
 ## TL;DR
 
 | Model Variant | Best Decode | Recommended Settings |
 |:--------------|:-----------:|:---------------------|
-| Standard | **27.73 tok/s** | `ngl=99, n_cpu_moe=20, threads=8, ctx=32768, q8_0/q8_0` |
-| MTP | **25.99 tok/s** | `ngl=40, n_cpu_moe=24, draft=3, ctx=4096, q4_0/q4_0` |
+| Standard | **26.3 tok/s** | `ngl=40, n_cpu_moe=28, threads=8, ctx=32768, q8_0/q8_0, fa=on, fit=off` |
+| Standard 64K | **25.3 tok/s** | Same as above + `ctx=65536` |
+
+> ⚠️ **`-fa on` is mandatory.** With q8_0 KV cache, without `-fa on` VRAM scales linearly with prompt length (28K tokens ≈ 4.2 GB). At 64K you **will** OOM.
 
 ### Bottom Line
 
 **RTX 3060 12GB handles Qwen3.6-35B-A3B comfortably at practical speeds.**
 
-- The standard version is the clear winner
+- The standard version is the clear winner for this test
 - MTP doesn't beat it at this VRAM budget
 - Many early results were actually CPU-only — I used a binary that silently fell back to CPU
 
@@ -31,13 +46,13 @@ The answer is **yes** — and not just barely. It's genuinely usable.
 
 ### 1. Real GPU vs. Fake GPU is a huge deal
 
-Early tests used `llama-b9444-bin-win-cuda-13.3-x64.zip`, which **lacks CUDA runtime DLLs**. Despite specifying `-ngl 99`, everything ran on CPU.
+Early tests used `llama-b9444-bin-win-cuda-13.3-x64.zip`, which **lacks CUDA runtime DLLs**. Despite specifying `-ngl`, everything ran on CPU.
 
 Switching to `cudart-llama-bin-win-cuda-13.3-x64.zip` unlocked true GPU acceleration — about **2.5× faster**.
 
 ### 2. Standard beats MTP at 12 GB VRAM
 
-MTP's speculative decoding sounds good on paper, but the draft head costs **~2.9 GB of extra VRAM**. At the 12 GB boundary, that overhead pushes out experts that could have been on GPU, and the standard model ends up faster and more stable.
+MTP's speculative decoding sounds good on paper, but the draft head costs **extra VRAM**. At the 12 GB boundary, that overhead pushes out experts that could have been on GPU, and the standard model ends up faster and more stable.
 
 ### 3. `--n-cpu-moe` is the most impactful knob
 
@@ -52,17 +67,19 @@ llama-server.exe ^
   -m "Qwen3.6-35B-A3B-Q4_K_M.gguf" ^
   -t 8 ^
   --port 8080 ^
-  -ngl 99 ^
-  --n-cpu-moe 20 ^
+  -ngl 40 ^
+  --n-cpu-moe 28 ^
   --no-mmap ^
   --cache-type-k q8_0 ^
   --cache-type-v q8_0 ^
   -c 32768 ^
   -np 1 ^
-  --reasoning off
+  --reasoning off ^
+  -fa on ^
+  -fit off
 ```
 
-> ✏️ **Update (2026-06-03):** Same params, keep `q8_0` KV cache, bump context to **64K** — still runs smoothly with negligible speed loss (~200-300 MB extra VRAM).
+> **64K context:** Change `-c` to `65536`. Tested at 32K / 48K / 64K — peak VRAM ~9.1 GB.
 
 ### MTP (alternative)
 
@@ -86,7 +103,7 @@ llama-server.exe ^
 
 ## Two Checks Before You Start
 
-### Check 1: Are you actually on GPU?
+### Check 1: Is llama.cpp actually seeing your GPU?
 
 ```bash
 llama-server.exe --list-devices
@@ -100,14 +117,9 @@ Available devices:
 
 If this is empty, your benchmark results are meaningless.
 
-### Check 2: Is VRAM actually going up?
+### Check 2: Is VRAM actually going up when loading?
 
-```bash
-nvidia-smi --query-gpu=memory.used --format=csv,noheader
-```
-
-- CPU-only: ~932 MiB (just desktop)
-- Real GPU: ~11600 MiB (model loaded)
+After successfully loading the model, VRAM should rise from the desktop idle of ~469 MiB to around **11.6–12.0 GiB**.
 
 ## Repo Structure
 
@@ -143,14 +155,14 @@ rtx3060-qwen3.6-35b-guide/
 - Standard vs. MTP: which one at 12 GB?
 - How to tune `--n-cpu-moe`, `-ngl`, and `threads`
 - How to tell if you're actually on CPU
-- Which settings are stable sweet spots
+- Which settings are stable sweet spots vs. fast but unstable
 
 ## What's Not Covered (Yet)
 
 - Automated benchmark scripts
 - Charts and visualizations
 - Linux / WSL / multi-GPU setups
-- Larger contexts (128K / 262K)
+- `64K` context ✅ tested; `128K` / `262K` not yet tested
 - Other quantization formats (Q3_K_*, Q5_K_*)
 
 ## For Those Who Want to Extend
