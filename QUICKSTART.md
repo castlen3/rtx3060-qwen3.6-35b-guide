@@ -37,21 +37,28 @@ llama-server.exe ^
   -m "Qwen3.6-35B-A3B-Q4_K_M.gguf" ^
   -t 8 ^
   --port 8080 ^
-  -ngl 99 ^
-  --n-cpu-moe 20 ^
+  -ngl 40 ^
+  --n-cpu-moe 28 ^
   --no-mmap ^
   --cache-type-k q8_0 ^
   --cache-type-v q8_0 ^
   -c 32768 ^
   -np 1 ^
-  --reasoning off
+  --reasoning off ^
+  -fa on ^
+  -fit off
 ```
+
+> **`-fa on` 必須加。** 使用 q8_0 KV cache 時，新版 llama.cpp 強制要求開啟 flash attention。
+> 不加的話 context 拉不上去，VRAM 會隨著 prompt 長度線性增長，32K 以上幾乎一定 OOM。
+> 開啟後 KV cache 幾乎不佔額外 VRAM，實測可穩跑 64K context。
 
 成功特徵：
 
 - `--list-devices` 有列出 `CUDA0`
-- 模型載入後 VRAM 上升到約 `11.6 GiB`
-- 長文本 decode 約 `27 tok/s`
+- 模型載入後 VRAM 上升到約 `8.8 GiB`
+- 長文本 decode 約 `26 tok/s`
+- 64K context 也可穩跑（`-c 65536`，peak VRAM ~9.1GB）
 
 ## 4. 最小重現: MTP 推薦配置
 
@@ -92,6 +99,12 @@ llama-server.exe ^
 ### VRAM 吃滿後反而變慢
 
 尤其是 MTP 版在 `n_cpu_moe=20` 時，速度可能大幅下降。
+
+### 沒開 `-fa on` 導致 long context OOM
+
+使用 q8_0 KV cache 時，若未開啟 flash attention（`-fa on`），VRAM 會隨 prompt 長度線性膨脹。
+實測 28K tokens 就多吃 ~4.2 GB，64K 一定會 OOM。新版 llama.cpp 在 q8_0 下甚至會直接報錯不給跑。
+**解決：一律加 `-fa on`。**
 
 ## 6. 怎麼跟 agent 配合最快
 

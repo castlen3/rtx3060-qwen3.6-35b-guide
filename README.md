@@ -29,8 +29,10 @@
 
 | 模型版本 | 最佳 decode | 推薦設定 |
 |:--------|:-----------:|:--------|
-| 一般版 | **27.73 tok/s** | `ngl=99, n_cpu_moe=20, threads=8, ctx=32768, q8_0/q8_0` |
-| MTP 版 | **25.99 tok/s** | `ngl=40, n_cpu_moe=24, threads=8, draft=3, ctx=4096, q4_0/q4_0` |
+| 一般版 | **26.3 tok/s** | `ngl=40, n_cpu_moe=28, threads=8, ctx=32768, q8_0/q8_0, fa=on, fit=off` |
+| 一般版 64K | **25.3 tok/s** | 同上 + `ctx=65536` |
+
+> ⚠️ **`-fa on` 必須開。** 使用 q8_0 KV cache 時若不加，VRAM 隨 prompt 長度線性膨脹（28K tokens ~4.2GB），64K 一定 OOM。
 
 ### 一句話結論
 
@@ -66,15 +68,19 @@ llama-server.exe ^
   -m "Qwen3.6-35B-A3B-Q4_K_M.gguf" ^
   -t 8 ^
   --port 8080 ^
-  -ngl 99 ^
-  --n-cpu-moe 20 ^
+  -ngl 40 ^
+  --n-cpu-moe 28 ^
   --no-mmap ^
   --cache-type-k q8_0 ^
   --cache-type-v q8_0 ^
   -c 32768 ^
   -np 1 ^
-  --reasoning off
+  --reasoning off ^
+  -fa on ^
+  -fit off
 ```
+
+> **64K context**：把 `-c` 改成 `65536` 即可，32K/48K/64K 都實測通過，peak VRAM 僅約 9.1GB。
 
 ### MTP 版推薦
 
@@ -156,7 +162,7 @@ rtx3060-qwen35b-benchmark/
 - 沒有附自動化 benchmark script
 - 沒有附圖表版視覺化
 - 沒有涵蓋 Linux / WSL / 多 GPU
-- 沒有測更大的 context（例如 `128K` / `262K`）
+- 沒有測更大的 context（`64K` 已實測通過 ✅；`128K` / `262K` 未測）
 - 沒有測不同量化（`Q3_K_*`、`Q5_K_*`）
 
 ## 給想 fork 後繼續補測的人

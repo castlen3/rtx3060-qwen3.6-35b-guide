@@ -138,11 +138,30 @@ KV cache 公式（q4_0）：
 以 12GB VRAM 來說，開到 128K context 理論上都還在範圍內，
 但需要實測驗證。
 
-## 8. 哪些設定穩定可用
+## 8. Flash Attention（`-fa`）的必要性
+
+### 背景
+
+q8_0 KV cache 搭配長 context（32K+）時，若不加 `-fa on`，VRAM 會隨 prompt 長度**線性增長**：
+每 1K tokens 多吃約 150 MB。32K 就是 4.8 GB，64K 直接爆表。
+
+### 實測數據（moe=28, 32K context, 28K prompt, b9488）
+
+| 設定 | 啟動 VRAM | Peak VRAM（28K tokens） | KV cache 增幅 |
+|------|----------|------------------------|--------------|
+| `-fa off` | 4,737 MB | 8,981 MB | **+4,244 MB** |
+| `-fa on`  | 8,725 MB | 8,817 MB | **+92 MB** |
+
+### 結論
+
+- **Flash attention 不影響 prefill/decode 速度**（391 vs 386 t/s，誤差級別）
+- **主要價值是 VRAM 效率**：fa=on 讓 KV cache 幾乎零額外成本
+- **b9488+ 強制要求**：`cache-type-v q8_0` 不加 `-fa on` 直接報錯
+- **對 12GB VRAM 來說是必須**：沒開的話 32K 就不穩，64K 不可能
 
 ### ✅ 高度穩定（大量測試，無 crash）
 
-- 一般版：ngl=99, n_cpu_moe=20, threads=8, ctx=32768, q8_0
+- 一般版：ngl=40, n_cpu_moe=28~36, threads=8, ctx=32768, q8_0, fa=on, fit=off
 - MTP 版：ngl=40, n_cpu_moe=24~41, draft=1~3, ctx=4096, q4_0
 
 ### ⚠️ 可跑但不穩定
