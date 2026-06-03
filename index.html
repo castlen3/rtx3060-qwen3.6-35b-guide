@@ -147,8 +147,12 @@
 <p class="subtitle">一張 12GB 老卡，真的能順跑 35B MoE 模型嗎？答案是：可以，而且跑得不錯。</p>
 
 <div class="hero">
-  <div class="big-num">27.73 <span class="unit">tok/s</span></div>
-  <p style="margin-top:0.25rem; color:var(--muted);">RTX 3060 12GB · Qwen3.6-35B-A3B · Q4_K_M · 32K context</p>
+  <div class="big-num">26.3 <span class="unit">tok/s</span></div>
+  <p style="margin-top:0.25rem; color:var(--muted);">RTX 3060 12GB · Qwen3.6-35B-A3B · Q4_K_M · 32K context · -fa on</p>
+</div>
+
+<div class="card" style="border-color: var(--orange); background: rgba(210,153,29,0.06);">
+  <p style="margin:0;">⚠️ <strong>這是「12GB VRAM + 足夠系統 RAM」的極限實測，不是「只有 12GB VRAM 就能無腦跑」。</strong></p>
 </div>
 
 <!-- ====== WHY ====== -->
@@ -172,13 +176,13 @@
   <tbody>
     <tr>
       <td>一般版 <span class="tag tag-win">首選</span></td>
-      <td><strong>27.73 tok/s</strong></td>
-      <td>ngl=99, n_cpu_moe=20, t=8, ctx=32768, q8_0</td>
+      <td><strong>26.3 tok/s</strong></td>
+      <td>ngl=40, n_cpu_moe=28, t=8, ctx=32768, q8_0, fa=on</td>
     </tr>
     <tr>
-      <td>MTP 版</td>
-      <td>25.99 tok/s</td>
-      <td>ngl=40, n_cpu_moe=24, draft=3, ctx=4096, q4_0</td>
+      <td>一般版 64K</td>
+      <td><strong>25.3 tok/s</strong></td>
+      <td>同上 + ctx=65536</td>
     </tr>
   </tbody>
 </table>
@@ -193,7 +197,7 @@
   <p style="margin-bottom:0.4rem;">MTP 模型比一般版大了 <strong>~2.9 GB</strong>（draft head 權重），這些多出來的 VRAM 開銷：</p>
   <ul style="padding-left:1.25rem; margin:0;">
     <li>排擠了能放進 GPU 的 experts</li>
-    <li>n_cpu_moe 只能放到 24（一般版可到 20）</li>
+    <li>n_cpu_moe 只能放到 24（一般版可到 28）</li>
     <li>VRAM 幾乎吃滿 12GB，n_cpu_moe=20 時直接 thrashing 掉到 16 tok/s</li>
   </ul>
 </div>
@@ -203,7 +207,7 @@
     <tr><th>指標</th><th>一般版 🏆</th><th>MTP 版</th></tr>
   </thead>
   <tbody>
-    <tr><td>decode 速度</td><td>27.73 tok/s</td><td>25.99 tok/s</td></tr>
+    <tr><td>decode 速度</td><td>26.3 tok/s</td><td>25.99 tok/s</td></tr>
     <tr><td>VRAM 用量</td><td>~11.6 GB（有餘裕）</td><td>~12.0 GB（緊繃）</td></tr>
     <tr><td>模型大小</td><td>19.7 GB</td><td>22.6 GB</td></tr>
     <tr><td>載入時間</td><td>~10 秒</td><td>~20-30 秒</td></tr>
@@ -220,18 +224,20 @@
   -m "Qwen3.6-35B-A3B-Q4_K_M.gguf" ^
   -t 8 ^
   --port 8080 ^
-  -ngl 99 ^
-  --n-cpu-moe 20 ^
+  -ngl 40 ^
+  --n-cpu-moe 28 ^
   --no-mmap ^
   --cache-type-k q8_0 ^
   --cache-type-v q8_0 ^
   -c 32768 ^
   -np 1 ^
-  --reasoning off</code></pre>
+  --reasoning off ^
+  -fa on ^
+  -fit off</code></pre>
 
 <div class="verdict">
-  <h3>✏️ 筆者更新（2026-06-03）</h3>
-  <p style="margin:0;">同樣參數，KV cache 維持 <code>q8_0</code>，context 拉到 <strong>64K</strong> 實測一樣很舒適。VRAM 多吃了約 200-300 MB，速度幾乎沒掉，日常使用完全沒問題。</p>
+  <h3>⚠️ <code>-fa on</code> 必須開</h3>
+  <p style="margin:0.5rem 0 0;">使用 q8_0 KV cache 時若不加 <code>-fa on</code>，VRAM 隨 prompt 長度線性膨脹（28K tokens ~4.2GB），64K 一定 OOM。開啟後 peak VRAM 僅約 9.1GB。</p>
 </div>
 
 <!-- ====== CHECK ====== -->
