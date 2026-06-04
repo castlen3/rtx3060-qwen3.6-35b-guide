@@ -12,6 +12,8 @@
 
 答案是有。
 
+> 💡 **只有 8GB VRAM？卡更老？也沒問題！** GTX 1070 8GB 實測也能跑到 22 tok/s，一樣是日常完全可用的速度。詳見 [gtx1070-qwen3.6-35b-guide](https://github.com/castlen3/gtx1070-qwen3.6-35b-guide)。
+
 我實測在 `RTX 3060 12GB` 搭配 `X99` 老平台上，`Qwen3.6-35B-A3B` 依然可以跑到大約 `27 tok/s`，而且不是勉強能跑，是已經進入日常可用、甚至相當順手的速度。
 
 這份 repo 記錄了我在 `RTX 3060 12GB` 上測試 `Qwen3.6-35B-A3B` / `Qwen3.6-35B-A3B-UD (MTP)` 的完整過程、參數掃描結果、踩坑紀錄與結論。
