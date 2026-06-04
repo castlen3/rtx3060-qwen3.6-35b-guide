@@ -1,7 +1,7 @@
 # 04 — 測試指令
 
 > 所有測試使用 `llama-server.exe` 作為推論引擎，透過 HTTP `/completion` API 取得 timing。
-> 未特別標註的皆執行於 `C:\Users\castlen3\.gemini\antigravity\scratch\llama_run` 目錄下。
+> 所有指令皆以 `llama-server.exe` 所在目錄為工作目錄。
 
 ## 測試命名規則
 
@@ -19,7 +19,7 @@
 ### n01~n14 - 一般版 n_cpu_moe sweep（short prompt 16 tok）
 
 ```bash
-llama-server.exe -m "Qwen3.6-35B-A3B-Q4_K_M.gguf" -t 6 --port 8080 -ngl 99 --n-cpu-moe {moe} --no-mmap --cache-type-k q8_0 --cache-type-v q8_0 -c 32768 -np 1 --reasoning off
+llama-server.exe -m "Qwen3.6-35B-A3B-Q4_K_M.gguf" -t 6 -ngl 99 --n-cpu-moe {moe} --no-mmap --cache-type-k q8_0 --cache-type-v q8_0 -c 32768 -np 1 --reasoning off
 ```
 - 測試 moe：28, 24, 20, 16, 12, 8, 4, 0
 - 結果：n_cpu_moe=20 → 10.68 tok/s（最佳）
@@ -28,7 +28,7 @@ llama-server.exe -m "Qwen3.6-35B-A3B-Q4_K_M.gguf" -t 6 --port 8080 -ngl 99 --n-c
 ### m01~m06 - MTP draft sweep（short prompt 16 tok）(CPU-only)
 
 ```bash
-llama-server.exe -m "Qwen3.6-35B-A3B-UD-Q4_K_M.gguf" -t 6 --port 8080 -ngl 99 --n-cpu-moe 20 --no-mmap --cache-type-k q8_0 --cache-type-v q8_0 -c 32768 -np 1 --reasoning off --spec-type draft-mtp --spec-draft-model {same_file} --spec-draft-n-max {draft}
+llama-server.exe -m "Qwen3.6-35B-A3B-UD-Q4_K_M.gguf" -t 6 -ngl 99 --n-cpu-moe 20 --no-mmap --cache-type-k q8_0 --cache-type-v q8_0 -c 32768 -np 1 --reasoning off --spec-type draft-mtp --spec-draft-model {same_file} --spec-draft-n-max {draft}
 ```
 - 測試 draft：1, 2, 3, 4, 5, 7
 - 結果：draft=5 → 11.94 tok/s（最佳）
@@ -37,7 +37,7 @@ llama-server.exe -m "Qwen3.6-35B-A3B-UD-Q4_K_M.gguf" -t 6 --port 8080 -ngl 99 --
 ### m07~m21 - MTP draft × threads sweep（long prompt 307 tok）(CPU-only)
 
 ```bash
-llama-server.exe -m "Qwen3.6-35B-A3B-UD-Q4_K_M.gguf" -t {threads} --port 8080 -ngl 99 --n-cpu-moe 20 --no-mmap --cache-type-k q8_0 --cache-type-v q8_0 -c 32768 -np 1 --reasoning off --spec-type draft-mtp --spec-draft-model {same_file} --spec-draft-n-max {draft}
+llama-server.exe -m "Qwen3.6-35B-A3B-UD-Q4_K_M.gguf" -t {threads} -ngl 99 --n-cpu-moe 20 --no-mmap --cache-type-k q8_0 --cache-type-v q8_0 -c 32768 -np 1 --reasoning off --spec-type draft-mtp --spec-draft-model {same_file} --spec-draft-n-max {draft}
 ```
 - 測試 draft：2, 4, 5 × threads：4, 6, 8, 10, 12
 - 結果：draft=5 + threads=8 → 14.99 tok/s（此階段最佳）
@@ -52,7 +52,7 @@ llama-server.exe -m "Qwen3.6-35B-A3B-UD-Q4_K_M.gguf" -t {threads} --port 8080 -n
 ### n15~n26 - 一般版 n_cpu_moe sweep（真實 GPU）(short 16 tok + long 307 tok)
 
 ```bash
-llama-server.exe -m "Qwen3.6-35B-A3B-Q4_K_M.gguf" -t 8 --port 8080 -ngl 99 --n-cpu-moe {moe} --no-mmap --cache-type-k q8_0 --cache-type-v q8_0 -c 32768 -np 1 --reasoning off
+llama-server.exe -m "Qwen3.6-35B-A3B-Q4_K_M.gguf" -t 8 -ngl 99 --n-cpu-moe {moe} --no-mmap --cache-type-k q8_0 --cache-type-v q8_0 -c 32768 -np 1 --reasoning off
 ```
 - 測試 moe：20, 16, 12, 8, 4, 0
 - 結果（long prompt）：n_cpu_moe=20 → **27.73 tok/s** 🏆
@@ -60,7 +60,7 @@ llama-server.exe -m "Qwen3.6-35B-A3B-Q4_K_M.gguf" -t 8 --port 8080 -ngl 99 --n-c
 ### m22~m27 - MTP ngl sweep（真實 GPU）
 
 ```bash
-llama-server.exe -m "Qwen3.6-35B-A3B-UD-Q4_K_M.gguf" -t 8 --port 8080 -ngl {ngl} --n-cpu-moe 41 --no-mmap --cache-type-k q4_0 --cache-type-v q4_0 -c 4096 -np 1 --reasoning off --spec-type draft-mtp --spec-draft-n-max 2 -fit off
+llama-server.exe -m "Qwen3.6-35B-A3B-UD-Q4_K_M.gguf" -t 8 -ngl {ngl} --n-cpu-moe 41 --no-mmap --cache-type-k q4_0 --cache-type-v q4_0 -c 4096 -np 1 --reasoning off --spec-type draft-mtp --spec-draft-n-max 2 -fit off
 ```
 - 測試 ngl：12, 16, 20, 24, 28, 32, 36, 40
 - 結果：ngl=40 + draft=2 → 18.29 tok/s
@@ -69,7 +69,7 @@ llama-server.exe -m "Qwen3.6-35B-A3B-UD-Q4_K_M.gguf" -t 8 --port 8080 -ngl {ngl}
 ### m28~m30 - MTP draft sweep at ngl=40（真實 GPU）
 
 ```bash
-llama-server.exe -m "Qwen3.6-35B-A3B-UD-Q4_K_M.gguf" -t 8 --port 8080 -ngl 40 --n-cpu-moe 41 --no-mmap --cache-type-k q4_0 --cache-type-v q4_0 -c 4096 -np 1 --reasoning off --spec-type draft-mtp --spec-draft-n-max {draft} -fit off
+llama-server.exe -m "Qwen3.6-35B-A3B-UD-Q4_K_M.gguf" -t 8 -ngl 40 --n-cpu-moe 41 --no-mmap --cache-type-k q4_0 --cache-type-v q4_0 -c 4096 -np 1 --reasoning off --spec-type draft-mtp --spec-draft-n-max {draft} -fit off
 ```
 - 測試 draft：1, 2, 3
 - 結果：draft=3 → **20.80 tok/s** 🏆
@@ -77,7 +77,7 @@ llama-server.exe -m "Qwen3.6-35B-A3B-UD-Q4_K_M.gguf" -t 8 --port 8080 -ngl 40 --
 ### m31~m36 - MTP n_cpu_moe sweep at ngl=40, draft=3（真實 GPU）
 
 ```bash
-llama-server.exe -m "Qwen3.6-35B-A3B-UD-Q4_K_M.gguf" -t 8 --port 8080 -ngl 40 --n-cpu-moe {moe} --no-mmap --cache-type-k q4_0 --cache-type-v q4_0 -c 4096 -np 1 --reasoning off --spec-type draft-mtp --spec-draft-n-max 3 -fit off
+llama-server.exe -m "Qwen3.6-35B-A3B-UD-Q4_K_M.gguf" -t 8 -ngl 40 --n-cpu-moe {moe} --no-mmap --cache-type-k q4_0 --cache-type-v q4_0 -c 4096 -np 1 --reasoning off --spec-type draft-mtp --spec-draft-n-max 3 -fit off
 ```
 - 測試 moe：41, 36, 32, 28, 24, 20
 - 結果：n_cpu_moe=24 → **25.99 tok/s** 🏆
@@ -87,14 +87,14 @@ llama-server.exe -m "Qwen3.6-35B-A3B-UD-Q4_K_M.gguf" -t 8 --port 8080 -ngl 40 --
 
 ```bash
 # Test 1: MTP GGUF + CPU-only + 無 MTP
-llama-server.exe -m "Qwen3.6-35B-A3B-UD-Q4_K_M.gguf" -ngl 0 -c 512 --port 8080 -t 4 --no-mmap -np 1
+llama-server.exe -m "Qwen3.6-35B-A3B-UD-Q4_K_M.gguf" -ngl 0 -c 512 -t 4 --no-mmap -np 1
 # ✅ 成功載入
 
 # Test 2: MTP GGUF + CPU-only + MTP draft=1
-llama-server.exe -m "Qwen3.6-35B-A3B-UD-Q4_K_M.gguf" -ngl 0 -c 512 --port 8080 -t 4 --no-mmap -np 1 --reasoning off --spec-type draft-mtp --spec-draft-n-max 1
+llama-server.exe -m "Qwen3.6-35B-A3B-UD-Q4_K_M.gguf" -ngl 0 -c 512 -t 4 --no-mmap -np 1 --reasoning off --spec-type draft-mtp --spec-draft-n-max 1
 # ✅ 成功載入，log 顯示 MTP context estimated 890.85 MiB
 
 # Test 3: MTP GGUF + GPU 12 layers + MTP draft=2
-llama-server.exe -m "Qwen3.6-35B-A3B-UD-Q4_K_M.gguf" -ngl 12 --n-cpu-moe 41 -c 4096 --port 8080 -t 8 --no-mmap --cache-type-k q4_0 --cache-type-v q4_0 -np 1 --reasoning off --spec-type draft-mtp --spec-draft-n-max 2 -fit off
+llama-server.exe -m "Qwen3.6-35B-A3B-UD-Q4_K_M.gguf" -ngl 12 --n-cpu-moe 41 -c 4096 -t 8 --no-mmap --cache-type-k q4_0 --cache-type-v q4_0 -np 1 --reasoning off --spec-type draft-mtp --spec-draft-n-max 2 -fit off
 # ✅ 成功載入，21.8 GB RAM + GPU 混合
 ```

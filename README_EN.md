@@ -66,7 +66,6 @@ For this MoE model, `--n-cpu-moe` matters more than `threads` and even `-ngl`. D
 llama-server.exe ^
   -m "Qwen3.6-35B-A3B-Q4_K_M.gguf" ^
   -t 8 ^
-  --port 8080 ^
   -ngl 40 ^
   --n-cpu-moe 28 ^
   --no-mmap ^
@@ -87,7 +86,6 @@ llama-server.exe ^
 llama-server.exe ^
   -m "Qwen3.6-35B-A3B-UD-Q4_K_M.gguf" ^
   -t 8 ^
-  --port 8080 ^
   -ngl 40 ^
   --n-cpu-moe 24 ^
   --no-mmap ^

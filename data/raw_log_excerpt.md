@@ -13,7 +13,7 @@
 
 **Command:**
 ```
-llama-server.exe -m "Qwen3.6-35B-A3B-Q4_K_M.gguf" -t 8 --port 8080
+llama-server.exe -m "Qwen3.6-35B-A3B-Q4_K_M.gguf" -t 8
   -ngl 99 --n-cpu-moe 20 --no-mmap
   --cache-type-k q8_0 --cache-type-v q8_0 -c 32768 -np 1 --reasoning off
 ```
@@ -67,7 +67,7 @@ I srv  llama_server: server is listening on http://127.0.0.1:8080
 
 **Command:**
 ```
-llama-server.exe -m "Qwen3.6-35B-A3B-UD-Q4_K_M.gguf" -t 8 --port 8080
+llama-server.exe -m "Qwen3.6-35B-A3B-UD-Q4_K_M.gguf" -t 8
   -ngl 40 --n-cpu-moe 24 --no-mmap
   --cache-type-k q4_0 --cache-type-v q4_0 -c 4096 -np 1 --reasoning off
   --spec-type draft-mtp --spec-draft-n-max 3 -fit off
@@ -224,7 +224,7 @@ llama-server.exe
 0.19.473.877 E llama_model_load: error loading model: invalid vector subscript
 0.19.473.892 E llama_model_load_from_file_impl: failed to load model
 0.19.473.910 E srv    load_model: failed to load draft model,
-    'C:\Users\castlen3\.lmstudio\models\unsloth\Qwen3.6-35B-A3B-MTP-GGUF\Qwen3.6-35B-A3B-UD-Q4_K_M.gguf'
+    'C:\Users\<user>\.lmstudio\models\...\Qwen3.6-35B-A3B-UD-Q4_K_M.gguf'
 0.19.473.934 I srv    operator(): operator(): cleaning up before exit...
 0.19.475.528 E srv  llama_server: exiting due to model loading error
 0.19.475.628 D ~llama_context:      CUDA0 compute buffer size is 497.0021 MiB,
